@@ -9,7 +9,10 @@ import bundleAws from './poetry-bundle-aws'
 
 const exec = promisify(ogExec)
 
+import { execUtils } from '@yarnpkg/core'
+import {NativePath, npath} from '@yarnpkg/fslib';
 export default class PoetryProject {
+    context: any;
 
     path: string;
     filePath: string;
@@ -24,9 +27,10 @@ export default class PoetryProject {
         aws: bundleAws
     }
 
-    constructor(projectPath) {
+    constructor(projectPath, { context } = { context: null}) {
         //@ts-ignore
         return (async () => {
+            this.context = context;
             this.path = projectPath;
             this.filePath = projectPath + '/pyproject.toml'
             this.rawTOML = await readFile(this.filePath, { encoding: 'utf-8' })
@@ -58,12 +62,16 @@ export default class PoetryProject {
     }
 
     async test() {
-        var { stderr, stdout } = await exec(`poetry run pytest`, { cwd: this.path })
-        if (stderr) {
-            throw new Error(stderr)
-        }
-        console.log(stdout)
-        
+        const {NODE_OPTIONS} = process.env;
+        const {code} = await execUtils.pipevp('poetry', ['run', 'pytest'], {
+            cwd: npath.toPortablePath(this.path),
+            stderr: this.context.stderr,
+            stdin: this.context.stdin,
+            stdout: this.context.stdout,
+            env: {...process.env, NODE_OPTIONS},
+          });
+      
+          return code
 
       }
   
@@ -84,7 +92,8 @@ export default class PoetryProject {
             ...packageJson,
             scripts: {
                 ...(packageJson['scripts'] || {}),
-                'build': 'yarn poetry bundle'
+                'build': 'yarn poetry bundle',
+                'test': 'yarn exec poetry '
             }
         }
         packageJson.scripts['build'] = 'yarn poetry bundle'

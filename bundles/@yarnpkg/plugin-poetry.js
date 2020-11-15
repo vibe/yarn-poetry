@@ -14,8 +14,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => __WEBPACK_DEFAULT_EXPORT__
 /* harmony export */ });
 /* harmony import */ var _commands_PoetryBundleCommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _commands_PoetryNewCommand__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
-/* harmony import */ var _commands_PoetryTestCommand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
+/* harmony import */ var _commands_PoetryNewCommand__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(58);
+/* harmony import */ var _commands_PoetryTestCommand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(59);
 ;
 
 
@@ -166,6 +166,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_extra__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _poetry_bundle__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(54);
 /* harmony import */ var _poetry_bundle_aws__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(55);
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(56);
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(57);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7__);
 ;
 
 
@@ -173,14 +177,21 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const exec = (0,util__WEBPACK_IMPORTED_MODULE_1__.promisify)(child_process__WEBPACK_IMPORTED_MODULE_2__.exec);
+
+
 class PoetryProject {
-  constructor(projectPath) {
+  constructor(projectPath, {
+    context
+  } = {
+    context: null
+  }) {
     this.bundlers = {
       poetry: _poetry_bundle__WEBPACK_IMPORTED_MODULE_4__.default,
       aws: _poetry_bundle_aws__WEBPACK_IMPORTED_MODULE_5__.default
     }; //@ts-ignore
 
     return (async () => {
+      this.context = context;
       this.path = projectPath;
       this.filePath = projectPath + '/pyproject.toml';
       this.rawTOML = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.readFile)(this.filePath, {
@@ -213,18 +224,21 @@ class PoetryProject {
   }
 
   async test() {
-    var {
-      stderr,
-      stdout
-    } = await exec(`poetry run pytest`, {
-      cwd: this.path
+    const {
+      NODE_OPTIONS
+    } = process.env;
+    const {
+      code
+    } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__.execUtils.pipevp('poetry', ['run', 'pytest'], {
+      cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7__.npath.toPortablePath(this.path),
+      stderr: this.context.stderr,
+      stdin: this.context.stdin,
+      stdout: this.context.stdout,
+      env: { ...process.env,
+        NODE_OPTIONS
+      }
     });
-
-    if (stderr) {
-      throw new Error(stderr);
-    }
-
-    console.log(stdout);
+    return code;
   }
 
   static async generate(path, name, {
@@ -260,7 +274,8 @@ class PoetryProject {
     packageJson = JSON.parse(packageJson);
     packageJson = { ...packageJson,
       scripts: { ...(packageJson['scripts'] || {}),
-        'build': 'yarn poetry bundle'
+        'build': 'yarn poetry bundle',
+        'test': 'yarn exec poetry '
       }
     };
     packageJson.scripts['build'] = 'yarn poetry bundle';
@@ -7515,6 +7530,20 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_2__.promisify)(child_process__WEBP
 
 /***/ }),
 /* 56 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@yarnpkg/core");;
+
+/***/ }),
+/* 57 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@yarnpkg/fslib");;
+
+/***/ }),
+/* 58 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -7549,7 +7578,7 @@ __decorate([clipanion__WEBPACK_IMPORTED_MODULE_0__.Command.String({
 __decorate([clipanion__WEBPACK_IMPORTED_MODULE_0__.Command.Path(`poetry`, `new`)], PoetryNewCommand.prototype, "execute", null);
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -7581,8 +7610,10 @@ class PoetryTestCommand extends clipanion__WEBPACK_IMPORTED_MODULE_0__.Command {
       return;
     }
 
-    const poetryProject = await new _utils_poetry_project__WEBPACK_IMPORTED_MODULE_2__.default(this.context.cwd);
-    await poetryProject.test();
+    const poetryProject = await new _utils_poetry_project__WEBPACK_IMPORTED_MODULE_2__.default(this.context.cwd, {
+      context: this.context
+    });
+    return await poetryProject.test();
   }
 
 }

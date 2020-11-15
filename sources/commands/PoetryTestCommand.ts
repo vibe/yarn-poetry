@@ -13,7 +13,7 @@ export default class PoetryTestCommand extends Command<CommandContext> {
         return;
       } 
       
-      const poetryProject = await new PoetryProject(this.context.cwd)
-      await poetryProject.test()
+      const poetryProject = await new PoetryProject(this.context.cwd, { context: this.context })
+      return await poetryProject.test()
     }
   }
