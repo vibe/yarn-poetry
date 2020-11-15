@@ -3,7 +3,7 @@ import { promisify } from 'util'
 const exec = promisify(require('child_process').exec);
 const access = promisify(require('fs').access);
 
-export default async (path) => {
+export default async function isPyProject(path) {
     const pyproject = `${path}/pyproject.toml`
     try {
       await access(pyproject)
