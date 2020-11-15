@@ -1,3 +1,5 @@
+import { execUtils } from '@yarnpkg/core'
+import { npath } from '@yarnpkg/fslib'
 import { exec as ogExec, spawn } from 'child_process'
 import { readFile, writeFile, copy } from 'fs-extra'
 import { promisify } from 'util'
@@ -20,11 +22,15 @@ export default async project => {
     }
 
     //use poetry to pip install in dist folder
-    var { stderr, stdout } = await exec(`poetry run pip install -r requirements.txt -t . --upgrade`, { cwd: `${project.path}/dist/${project.projectModuleName}` })
-
-
-    if (stderr) {
-        console.error(stderr)
-        throw Error(`Failed to run pip install using poetry: ${stderr}`)
-    }
+    const {NODE_OPTIONS} = process.env;
+    const {code} = await execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.',], {
+        cwd: npath.toPortablePath(project.path),
+        stderr: project.context.stderr,
+        stdin: project.context.stdin,
+        stdout: project.context.stdout,
+        env: {...process.env, NODE_OPTIONS},
+      });
+  
+      return code
+      
 }

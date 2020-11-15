@@ -275,7 +275,7 @@ class PoetryProject {
     packageJson = { ...packageJson,
       scripts: { ...(packageJson['scripts'] || {}),
         'build': 'yarn poetry bundle',
-        'test': 'yarn exec poetry '
+        'test': 'yarn poetry test'
       }
     };
     packageJson.scripts['build'] = 'yarn poetry bundle';
@@ -7483,19 +7483,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => __WEBPACK_DEFAULT_EXPORT__
 /* harmony export */ });
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(12);
-/* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fs_extra__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
-/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(util__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
+/* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_extra__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
+/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(util__WEBPACK_IMPORTED_MODULE_4__);
 ;
 
 
-const exec = (0,util__WEBPACK_IMPORTED_MODULE_2__.promisify)(child_process__WEBPACK_IMPORTED_MODULE_0__.exec);
+
+
+const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBPACK_IMPORTED_MODULE_2__.exec);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (async project => {
   //copy the source into dist
-  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_1__.copy)(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/${project.projectModuleName}`);
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/${project.projectModuleName}`);
   var {
     stderr,
     stdout
@@ -7503,11 +7509,11 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_2__.promisify)(child_process__WEBP
     cwd: project.path
   }); // poetry currently generates invalid local references, I patch these with some regex. When project is fixed upstream, we can remove project block.
 
-  let requirements = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_1__.readFile)(`${project.path}/dist/${project.projectModuleName}/requirements.txt`, {
+  let requirements = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.readFile)(`${project.path}/dist/${project.projectModuleName}/requirements.txt`, {
     encoding: 'utf-8'
   });
   requirements = requirements.replace(/@ \//g, '@ file:///');
-  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_1__.writeFile)(`${project.path}/dist/${project.projectModuleName}/requirements.txt`, requirements, 'utf8');
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.writeFile)(`${project.path}/dist/${project.projectModuleName}/requirements.txt`, requirements, 'utf8');
 
   if (stderr) {
     console.error(stderr);
@@ -7515,17 +7521,21 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_2__.promisify)(child_process__WEBP
   } //use poetry to pip install in dist folder
 
 
-  var {
-    stderr,
-    stdout
-  } = await exec(`poetry run pip install -r requirements.txt -t . --upgrade`, {
-    cwd: `${project.path}/dist/${project.projectModuleName}`
+  const {
+    NODE_OPTIONS
+  } = process.env;
+  const {
+    code
+  } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__.execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.'], {
+    cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(project.path),
+    stderr: project.context.stderr,
+    stdin: project.context.stdin,
+    stdout: project.context.stdout,
+    env: { ...process.env,
+      NODE_OPTIONS
+    }
   });
-
-  if (stderr) {
-    console.error(stderr);
-    throw Error(`Failed to run pip install using poetry: ${stderr}`);
-  }
+  return code;
 });
 
 /***/ }),
