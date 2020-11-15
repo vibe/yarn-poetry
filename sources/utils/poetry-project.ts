@@ -3,7 +3,6 @@ import { promisify } from 'util'
 import { parse } from 'path';
 import { exec as ogExec, spawn } from 'child_process'
 import { readFile, writeFile, copy } from 'fs-extra'
-import { createPrinter } from 'typescript';
 
 import bundlePoetry from './poetry-bundle'
 import bundleAws from './poetry-bundle-aws'
@@ -11,6 +10,7 @@ import bundleAws from './poetry-bundle-aws'
 const exec = promisify(ogExec)
 
 export default class PoetryProject {
+
     path: string;
     filePath: string;
     rawTOML: string;
@@ -55,6 +55,29 @@ export default class PoetryProject {
             }
             targetBundler(this)
         })
+    }
+
+    static async generate(path, name, { p } = {p: true}) {
+        var { stderr, stdout } = await exec(`poetry new ${name}`, { cwd: path })
+        if (stderr) {
+            throw new Error(stderr)
+        }
+        var { stderr, stdout } = await exec(`yarn init ${p ? '-p' : ''}`, { cwd: `${path}/${name}`})
+        if (stderr) {
+            throw new Error(stderr)
+        }
+        let packageJson = await readFile(`${path}/${name}/package.json`, { encoding: 'utf-8' })
+        packageJson = JSON.parse(packageJson) 
+
+        packageJson = {
+            ...packageJson,
+            scripts: {
+                ...(packageJson['scripts'] || {}),
+                'build': 'yarn poetry bundle'
+            }
+        }
+        packageJson.scripts['build'] = 'yarn poetry bundle'
+        await writeFile(`${path}/${name}/package.json`, JSON.stringify(packageJson, null, 2), 'utf8')    
     }
 
     static isPoetryProject(toml) {
