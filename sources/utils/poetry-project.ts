@@ -57,6 +57,17 @@ export default class PoetryProject {
         })
     }
 
+    async test() {
+        var { stderr, stdout } = await exec(`poetry run pytest`, { cwd: this.path })
+        if (stderr) {
+            throw new Error(stderr)
+        }
+        console.log(stdout)
+        
+
+      }
+  
+
     static async generate(path, name, { p } = {p: true}) {
         var { stderr, stdout } = await exec(`poetry new ${name}`, { cwd: path })
         if (stderr) {

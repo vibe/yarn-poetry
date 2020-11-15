@@ -14,15 +14,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => __WEBPACK_DEFAULT_EXPORT__
 /* harmony export */ });
 /* harmony import */ var _commands_PoetryBundleCommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _commands_PoetryBundleNew__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var _commands_PoetryNewCommand__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var _commands_PoetryTestCommand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
 ;
+
 
 const plugin = {
   hooks: {
     afterAllInstalled: () => {// console.log(`Yarn Poetry 🥱`);
     }
   },
-  commands: [_commands_PoetryBundleCommand__WEBPACK_IMPORTED_MODULE_0__.default, _commands_PoetryBundleNew__WEBPACK_IMPORTED_MODULE_1__.default]
+  commands: [_commands_PoetryBundleCommand__WEBPACK_IMPORTED_MODULE_0__.default, _commands_PoetryNewCommand__WEBPACK_IMPORTED_MODULE_1__.default, _commands_PoetryTestCommand__WEBPACK_IMPORTED_MODULE_2__.default]
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (plugin);
 
@@ -208,6 +210,21 @@ class PoetryProject {
 
       targetBundler(this);
     });
+  }
+
+  async test() {
+    var {
+      stderr,
+      stdout
+    } = await exec(`poetry run pytest`, {
+      cwd: this.path
+    });
+
+    if (stderr) {
+      throw new Error(stderr);
+    }
+
+    console.log(stdout);
   }
 
   static async generate(path, name, {
@@ -7530,6 +7547,47 @@ __decorate([clipanion__WEBPACK_IMPORTED_MODULE_0__.Command.String({
 })], PoetryNewCommand.prototype, "name", void 0);
 
 __decorate([clipanion__WEBPACK_IMPORTED_MODULE_0__.Command.Path(`poetry`, `new`)], PoetryNewCommand.prototype, "execute", null);
+
+/***/ }),
+/* 57 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => /* binding */ PoetryTestCommand
+/* harmony export */ });
+/* harmony import */ var clipanion__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var clipanion__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(clipanion__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _utils_is_pyproject__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
+/* harmony import */ var _utils_poetry_project__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+var __decorate = undefined && undefined.__decorate || function (decorators, target, key, desc) {
+  var c = arguments.length,
+      r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+      d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+
+
+
+class PoetryTestCommand extends clipanion__WEBPACK_IMPORTED_MODULE_0__.Command {
+  async execute() {
+    const pyproject = await (0,_utils_is_pyproject__WEBPACK_IMPORTED_MODULE_1__.default)(this.context.cwd);
+
+    if (!pyproject) {
+      this.context.stdout.write(`Skipping ${this.context.cwd} - pyproject.toml was not found..\n`);
+      return;
+    }
+
+    const poetryProject = await new _utils_poetry_project__WEBPACK_IMPORTED_MODULE_2__.default(this.context.cwd);
+    await poetryProject.test();
+  }
+
+}
+
+__decorate([clipanion__WEBPACK_IMPORTED_MODULE_0__.Command.Path(`poetry`, `test`)], PoetryTestCommand.prototype, "execute", null);
 
 /***/ })
 /******/ 	]);
