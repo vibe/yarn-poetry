@@ -93,7 +93,7 @@ export default class PoetryProject {
             scripts: {
                 ...(packageJson['scripts'] || {}),
                 'build': 'yarn poetry bundle',
-                'test': 'yarn exec poetry '
+                'test': 'yarn poetry test'
             }
         }
         packageJson.scripts['build'] = 'yarn poetry bundle'
