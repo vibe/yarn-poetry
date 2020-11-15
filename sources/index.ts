@@ -8,8 +8,17 @@ import PoetryProject from './utils/poetry-project'
 
 const exec = promisify(child_process.exec) as any
 
-class PoetryCommand extends Command<CommandContext> {
-  @Command.Path(`poetry`, `bundle`, `aws`)
+enum PoetryBundleTargets {
+  poetry = 'poetry',
+  aws = 'aws',
+}
+
+class PoetryBundleCommand extends Command<CommandContext> {
+  @Command.Array(`--targets`)
+  public targets?: string[] = [PoetryBundleTargets.poetry, PoetryBundleTargets.aws];
+
+
+  @Command.Path(`poetry`, `bundle`)
   async execute() {
     const pyproject  = await isPyProject(this.context.cwd)
     if(!pyproject) {
@@ -18,9 +27,7 @@ class PoetryCommand extends Command<CommandContext> {
     } 
     
     const poetryProject = await new PoetryProject(this.context.cwd)
-    await poetryProject.bundle()
-
-    
+    await poetryProject.bundle(this.targets)
   }
 }
 
@@ -31,7 +38,7 @@ const plugin: Plugin = {
     },
   },
   commands: [
-    PoetryCommand,
+    PoetryBundleCommand,
   ],
 };
 
