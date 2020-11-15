@@ -3,10 +3,11 @@ import { npath } from '@yarnpkg/fslib'
 import { exec as ogExec, spawn } from 'child_process'
 import { readFile, writeFile, copy } from 'fs-extra'
 import { promisify } from 'util'
+import PoetryProject from './poetry-project'
 
 const exec = promisify(ogExec)
 
-export default async project => {
+export default async (project: PoetryProject) => {
     //copy the source into dist
     await copy(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/${project.projectModuleName}`)
     var { stderr, stdout } = await exec(`poetry export -f requirements.txt > ${project.path}/dist/${project.projectModuleName}/requirements.txt --without-hashes`, { cwd: project.path })
@@ -24,7 +25,7 @@ export default async project => {
     //use poetry to pip install in dist folder
     const {NODE_OPTIONS} = process.env;
     const {code} = await execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.',], {
-        cwd: npath.toPortablePath(project.path),
+        cwd: npath.toPortablePath(`${project.path}/dist/${project.projectModuleName}`),
         stderr: project.context.stderr,
         stdin: project.context.stdin,
         stdout: project.context.stdout,

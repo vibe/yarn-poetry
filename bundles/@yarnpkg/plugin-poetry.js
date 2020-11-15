@@ -7529,7 +7529,7 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBP
   const {
     code
   } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__.execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.'], {
-    cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(project.path),
+    cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(`${project.path}/dist/${project.projectModuleName}`),
     stderr: project.context.stderr,
     stdin: project.context.stdin,
     stdout: project.context.stdout,
