@@ -17,7 +17,7 @@ export default class PoetryBundleCommand extends Command<CommandContext> {
         return;
       } 
       
-      const poetryProject = await new PoetryProject(this.context.cwd)
+      const poetryProject = await new PoetryProject(this.context.cwd, { context: this.context })
       await poetryProject.bundle(this.targets)
     }
   }

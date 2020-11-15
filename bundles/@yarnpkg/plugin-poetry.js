@@ -68,7 +68,9 @@ class PoetryBundleCommand extends clipanion__WEBPACK_IMPORTED_MODULE_0__.Command
       return;
     }
 
-    const poetryProject = await new _utils_poetry_project__WEBPACK_IMPORTED_MODULE_3__.default(this.context.cwd);
+    const poetryProject = await new _utils_poetry_project__WEBPACK_IMPORTED_MODULE_3__.default(this.context.cwd, {
+      context: this.context
+    });
     await poetryProject.bundle(this.targets);
   }
 
