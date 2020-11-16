@@ -229,9 +229,7 @@ class PoetryProject {
     const {
       NODE_OPTIONS
     } = process.env;
-    const {
-      code
-    } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__.execUtils.pipevp('poetry', ['run', 'pytest'], {
+    const options = {
       cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7__.npath.toPortablePath(this.path),
       stderr: this.context.stderr,
       stdin: this.context.stdin,
@@ -239,7 +237,11 @@ class PoetryProject {
       env: { ...process.env,
         NODE_OPTIONS
       }
-    });
+    };
+    console.debug(options);
+    const {
+      code
+    } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__.execUtils.pipevp('poetry', ['run', 'pytest'], options);
     return code;
   }
 

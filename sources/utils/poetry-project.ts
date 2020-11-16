@@ -63,13 +63,15 @@ export default class PoetryProject {
 
     async test() {
         const {NODE_OPTIONS} = process.env;
-        const {code} = await execUtils.pipevp('poetry', ['run', 'pytest'], {
+        const options = {
             cwd: npath.toPortablePath(this.path),
             stderr: this.context.stderr,
             stdin: this.context.stdin,
             stdout: this.context.stdout,
             env: {...process.env, NODE_OPTIONS},
-          });
+          }
+        console.debug(options)
+        const {code} = await execUtils.pipevp('poetry', ['run', 'pytest'], options);
       
           return code
 
