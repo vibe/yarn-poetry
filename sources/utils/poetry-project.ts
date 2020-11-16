@@ -70,7 +70,6 @@ export default class PoetryProject {
             stdout: this.context.stdout,
             env: {...process.env, NODE_OPTIONS},
           }
-        console.debug(options)
         const {code} = await execUtils.pipevp('poetry', ['run', 'pytest'], options);
       
           return code

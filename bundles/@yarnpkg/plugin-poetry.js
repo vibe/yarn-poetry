@@ -238,7 +238,6 @@ class PoetryProject {
         NODE_OPTIONS
       }
     };
-    console.debug(options);
     const {
       code
     } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__.execUtils.pipevp('poetry', ['run', 'pytest'], options);
