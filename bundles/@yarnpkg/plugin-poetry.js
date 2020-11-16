@@ -7524,25 +7524,32 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBP
   if (stderr) {
     console.error(stderr);
     throw Error(`Failed to export requirements file: ${stderr}`);
-  } //use poetry to pip install in dist folder
+  }
 
+  const hasEnvPackages = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.pathExists)(`${project.path}/.venv/lib/python3.8/site-packages/`);
 
-  const {
-    NODE_OPTIONS
-  } = process.env;
-  await exec(`poetry env use python3`);
-  const {
-    code
-  } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__.execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.'], {
-    cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(`${project.path}/dist/${project.projectModuleName}`),
-    stderr: project.context.stderr,
-    stdin: project.context.stdin,
-    stdout: project.context.stdout,
-    env: { ...process.env,
+  if (hasEnvPackages) {
+    console.debug('Virtual Environment exists with packages');
+    await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/.venv/lib/python3.8/site-packages/`, `${project.path}/dist/${project.projectModuleName}/`);
+    return 0;
+  } else {
+    //use poetry to pip install in dist folder
+    const {
       NODE_OPTIONS
-    }
-  });
-  return code;
+    } = process.env;
+    const {
+      code
+    } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__.execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.'], {
+      cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(`${project.path}/dist/${project.projectModuleName}`),
+      stderr: project.context.stderr,
+      stdin: project.context.stdin,
+      stdout: project.context.stdout,
+      env: { ...process.env,
+        NODE_OPTIONS
+      }
+    });
+    return code;
+  }
 });
 
 /***/ }),

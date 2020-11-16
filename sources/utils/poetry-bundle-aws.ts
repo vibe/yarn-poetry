@@ -1,7 +1,7 @@
 import { execUtils } from '@yarnpkg/core'
 import { npath } from '@yarnpkg/fslib'
 import { exec as ogExec, spawn } from 'child_process'
-import { readFile, writeFile, copy } from 'fs-extra'
+import { readFile, writeFile, copy, pathExists } from 'fs-extra'
 import { promisify } from 'util'
 import PoetryProject from './poetry-project'
 
@@ -23,9 +23,15 @@ export default async (project: PoetryProject) => {
         throw Error(`Failed to export requirements file: ${stderr}`)
     }
 
+    const hasEnvPackages = await pathExists(`${project.path}/.venv/lib/python3.8/site-packages/`)
+
+    if(hasEnvPackages) {
+        console.debug('Virtual Environment exists with packages')
+        await copy(`${project.path}/.venv/lib/python3.8/site-packages/`, `${project.path}/dist/${project.projectModuleName}/`)
+        return 0
+    } else {
     //use poetry to pip install in dist folder
     const {NODE_OPTIONS} = process.env;
-    await exec(`poetry env use python3`)
     const {code} = await execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.',], {
         cwd: npath.toPortablePath(`${project.path}/dist/${project.projectModuleName}`),
         stderr: project.context.stderr,
@@ -35,5 +41,5 @@ export default async (project: PoetryProject) => {
       });
   
       return code
-      
+    }
 }
