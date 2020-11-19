@@ -7509,9 +7509,6 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBP
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (async project => {
   //copy the source into dist
   await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/${project.projectModuleName}`);
-  await exec(`poetry env use python3`, {
-    cwd: project.path
-  });
   var {
     stderr,
     stdout

@@ -10,7 +10,6 @@ const exec = promisify(ogExec)
 export default async (project: PoetryProject) => {
     //copy the source into dist
     await copy(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/${project.projectModuleName}`)
-    await exec(`poetry env use python3`, { cwd: project.path })
     var { stderr, stdout } = await exec(`poetry export -f requirements.txt > ${project.path}/dist/${project.projectModuleName}/requirements.txt --without-hashes`, { cwd: project.path })
 
     // poetry currently generates invalid local references, I patch these with some regex. When project is fixed upstream, we can remove project block.
