@@ -1,7 +1,7 @@
 import { execUtils } from '@yarnpkg/core'
 import { npath } from '@yarnpkg/fslib'
 import { exec as ogExec, spawn } from 'child_process'
-import { readFile, writeFile, copy, pathExists } from 'fs-extra'
+import { readFile, writeFile, copy, pathExists, ensureDir } from 'fs-extra'
 import { promisify } from 'util'
 import PoetryProject from './poetry-project'
 
@@ -9,6 +9,7 @@ const exec = promisify(ogExec)
 
 export default async (project: PoetryProject) => {
     //copy the source into dist
+    await ensureDir(`${project.path}/dist/${project.projectModuleName}`)
     await copy(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/${project.projectModuleName}`)
     var { stderr, stdout } = await exec(`poetry export -f requirements.txt > ${project.path}/dist/${project.projectModuleName}/requirements.txt --without-hashes`, { cwd: project.path })
 

@@ -6,10 +6,7 @@ import PoetryProject from "../utils/poetry-project";
 
 export default class PoetryBundleCommand extends Command<CommandContext> {
     @Command.Array(`--targets`)
-    public targets?: string[] = [
-      PoetryBundleTargets.poetry,
-      PoetryBundleTargets.aws
-    ];
+    public targets?: string[] = [];
   
   
     @Command.Path(`poetry`, `bundle`)
@@ -21,6 +18,14 @@ export default class PoetryBundleCommand extends Command<CommandContext> {
       } 
       
       const poetryProject = await new PoetryProject(this.context.cwd, { context: this.context })
+
+      if(!this.targets.length) {
+        this.targets = [
+          PoetryBundleTargets.poetry,
+          PoetryBundleTargets.aws,
+        ]
+      }
+
       await poetryProject.bundle(this.targets)
     }
   }

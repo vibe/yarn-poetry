@@ -57,7 +57,7 @@ var __decorate = undefined && undefined.__decorate || function (decorators, targ
 class PoetryBundleCommand extends clipanion__WEBPACK_IMPORTED_MODULE_0__.Command {
   constructor() {
     super(...arguments);
-    this.targets = [_utils_poetry_bundle_targets__WEBPACK_IMPORTED_MODULE_2__.PoetryBundleTargets.poetry, _utils_poetry_bundle_targets__WEBPACK_IMPORTED_MODULE_2__.PoetryBundleTargets.aws];
+    this.targets = [];
   }
 
   async execute() {
@@ -71,6 +71,11 @@ class PoetryBundleCommand extends clipanion__WEBPACK_IMPORTED_MODULE_0__.Command
     const poetryProject = await new _utils_poetry_project__WEBPACK_IMPORTED_MODULE_3__.default(this.context.cwd, {
       context: this.context
     });
+
+    if (!this.targets.length) {
+      this.targets = [_utils_poetry_bundle_targets__WEBPACK_IMPORTED_MODULE_2__.PoetryBundleTargets.poetry, _utils_poetry_bundle_targets__WEBPACK_IMPORTED_MODULE_2__.PoetryBundleTargets.aws];
+    }
+
     await poetryProject.bundle(this.targets);
   }
 
@@ -7508,6 +7513,7 @@ __webpack_require__.r(__webpack_exports__);
 const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBPACK_IMPORTED_MODULE_2__.exec);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (async project => {
   //copy the source into dist
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.ensureDir)(`${project.path}/dist/${project.projectModuleName}`);
   await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/${project.projectModuleName}`);
   var {
     stderr,
@@ -7594,19 +7600,20 @@ __webpack_require__.r(__webpack_exports__);
 const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBPACK_IMPORTED_MODULE_2__.exec);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (async project => {
   //copy the source into dist
-  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/python`);
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.ensureDir)(`${project.path}/dist/layer/python`);
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/layer/python`);
   var {
     stderr,
     stdout
-  } = await exec(`poetry export -f requirements.txt > ${project.path}/dist/python/requirements.txt --without-hashes`, {
+  } = await exec(`poetry export -f requirements.txt > ${project.path}/dist/layer/python/requirements.txt --without-hashes`, {
     cwd: project.path
   }); // poetry currently generates invalid local references, I patch these with some regex. When project is fixed upstream, we can remove project block.
 
-  let requirements = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.readFile)(`${project.path}/dist/python/requirements.txt`, {
+  let requirements = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.readFile)(`${project.path}/dist/layer/python/requirements.txt`, {
     encoding: 'utf-8'
   });
   requirements = requirements.replace(/@ \//g, '@ file:///');
-  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.writeFile)(`${project.path}/dist/python/requirements.txt`, requirements, 'utf8');
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.writeFile)(`${project.path}/dist/layer/python/requirements.txt`, requirements, 'utf8');
 
   if (stderr) {
     console.error(stderr);
@@ -7617,7 +7624,7 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBP
 
   if (hasEnvPackages) {
     console.debug('Virtual Environment exists with packages');
-    await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/.venv/lib/python3.8/site-packages/`, `${project.path}/dist/python/`);
+    await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/.venv/lib/python3.8/site-packages/`, `${project.path}/dist/layer/python/`);
     return 0;
   } else {
     //use poetry to pip install in dist folder
@@ -7627,7 +7634,7 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBP
     const {
       code
     } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__.execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.'], {
-      cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(`${project.path}/dist/python`),
+      cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(`${project.path}/dist/layer/python`),
       stderr: project.context.stderr,
       stdin: project.context.stdin,
       stdout: project.context.stdout,
