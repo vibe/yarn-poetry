@@ -6,6 +6,7 @@ import { readFile, writeFile, copy } from 'fs-extra'
 
 import bundlePoetry from './poetry-bundle'
 import bundleAws from './poetry-bundle-aws'
+import bundleAwsLambdaLayer from './poetry-bundle-aws-lambda-layer'
 
 const exec = promisify(ogExec)
 
@@ -23,8 +24,9 @@ export default class PoetryProject {
     projectModuleName: string;
 
     bundlers = {
-        poetry: bundlePoetry,
-        aws: bundleAws
+        'poetry': bundlePoetry,
+        'aws': bundleAws,
+        'aws-lambda-layer': bundleAwsLambdaLayer
     }
 
     constructor(projectPath, { context } = { context: null}) {

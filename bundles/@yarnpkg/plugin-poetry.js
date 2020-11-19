@@ -14,8 +14,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => __WEBPACK_DEFAULT_EXPORT__
 /* harmony export */ });
 /* harmony import */ var _commands_PoetryBundleCommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _commands_PoetryNewCommand__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(58);
-/* harmony import */ var _commands_PoetryTestCommand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(59);
+/* harmony import */ var _commands_PoetryNewCommand__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(59);
+/* harmony import */ var _commands_PoetryTestCommand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(60);
 ;
 
 
@@ -147,6 +147,7 @@ var PoetryBundleTargets;
 (function (PoetryBundleTargets) {
   PoetryBundleTargets["poetry"] = "poetry";
   PoetryBundleTargets["aws"] = "aws";
+  PoetryBundleTargets["aws-lambda-layer"] = "aws-lambda-layer";
 })(PoetryBundleTargets || (PoetryBundleTargets = {}));
 
 /***/ }),
@@ -168,11 +169,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_extra__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _poetry_bundle__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(54);
 /* harmony import */ var _poetry_bundle_aws__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(55);
-/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(56);
-/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(57);
-/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _poetry_bundle_aws_lambda_layer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(58);
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(56);
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_core__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(57);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_8__);
 ;
+
 
 
 
@@ -188,8 +191,9 @@ class PoetryProject {
     context: null
   }) {
     this.bundlers = {
-      poetry: _poetry_bundle__WEBPACK_IMPORTED_MODULE_4__.default,
-      aws: _poetry_bundle_aws__WEBPACK_IMPORTED_MODULE_5__.default
+      'poetry': _poetry_bundle__WEBPACK_IMPORTED_MODULE_4__.default,
+      'aws': _poetry_bundle_aws__WEBPACK_IMPORTED_MODULE_5__.default,
+      'aws-lambda-layer': _poetry_bundle_aws_lambda_layer__WEBPACK_IMPORTED_MODULE_6__.default
     }; //@ts-ignore
 
     return (async () => {
@@ -230,7 +234,7 @@ class PoetryProject {
       NODE_OPTIONS
     } = process.env;
     const options = {
-      cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_7__.npath.toPortablePath(this.path),
+      cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_8__.npath.toPortablePath(this.path),
       stderr: this.context.stderr,
       stdin: this.context.stdin,
       stdout: this.context.stdout,
@@ -240,7 +244,7 @@ class PoetryProject {
     };
     const {
       code
-    } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_6__.execUtils.pipevp('poetry', ['run', 'pytest'], options);
+    } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_7__.execUtils.pipevp('poetry', ['run', 'pytest'], options);
     return code;
   }
 
@@ -7573,6 +7577,78 @@ module.exports = require("@yarnpkg/fslib");;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ });
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
+/* harmony import */ var _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
+/* harmony import */ var fs_extra__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_extra__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
+/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(util__WEBPACK_IMPORTED_MODULE_4__);
+;
+
+
+
+
+const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBPACK_IMPORTED_MODULE_2__.exec);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (async project => {
+  //copy the source into dist
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/${project.projectModuleName}`, `${project.path}/dist/python`);
+  var {
+    stderr,
+    stdout
+  } = await exec(`poetry export -f requirements.txt > ${project.path}/dist/python/requirements.txt --without-hashes`, {
+    cwd: project.path
+  }); // poetry currently generates invalid local references, I patch these with some regex. When project is fixed upstream, we can remove project block.
+
+  let requirements = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.readFile)(`${project.path}/dist/python/requirements.txt`, {
+    encoding: 'utf-8'
+  });
+  requirements = requirements.replace(/@ \//g, '@ file:///');
+  await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.writeFile)(`${project.path}/dist/python/requirements.txt`, requirements, 'utf8');
+
+  if (stderr) {
+    console.error(stderr);
+    throw Error(`Failed to export requirements file: ${stderr}`);
+  }
+
+  const hasEnvPackages = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.pathExists)(`${project.path}/.venv/lib/python3.8/site-packages/`);
+
+  if (hasEnvPackages) {
+    console.debug('Virtual Environment exists with packages');
+    await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.copy)(`${project.path}/.venv/lib/python3.8/site-packages/`, `${project.path}/dist/python/`);
+    return 0;
+  } else {
+    //use poetry to pip install in dist folder
+    const {
+      NODE_OPTIONS
+    } = process.env;
+    const {
+      code
+    } = await _yarnpkg_core__WEBPACK_IMPORTED_MODULE_0__.execUtils.pipevp('poetry', ['run', 'pip', 'install', '-r', 'requirements.txt', '-t', '.'], {
+      cwd: _yarnpkg_fslib__WEBPACK_IMPORTED_MODULE_1__.npath.toPortablePath(`${project.path}/dist/python`),
+      stderr: project.context.stderr,
+      stdin: project.context.stdin,
+      stdout: project.context.stdout,
+      env: { ...process.env,
+        NODE_OPTIONS
+      }
+    });
+    return code;
+  }
+});
+
+/***/ }),
+/* 59 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => /* binding */ PoetryNewCommand
 /* harmony export */ });
 /* harmony import */ var clipanion__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
@@ -7602,7 +7678,7 @@ __decorate([clipanion__WEBPACK_IMPORTED_MODULE_0__.Command.String({
 __decorate([clipanion__WEBPACK_IMPORTED_MODULE_0__.Command.Path(`poetry`, `new`)], PoetryNewCommand.prototype, "execute", null);
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
