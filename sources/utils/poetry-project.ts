@@ -53,6 +53,15 @@ export default class PoetryProject {
         })();
     }
 
+    async build() {
+        let { stderr, stdout } = await exec('poetry build', { cwd: this.path })
+        if (stderr) {
+            console.error(stderr)
+            throw Error(`Failed to run poetry build: ${stderr}`)
+        }
+        console.log(stdout)
+    }
+
     async bundle(targets = []) {
         targets.forEach(target => {
             const targetBundler = this.bundlers[target]

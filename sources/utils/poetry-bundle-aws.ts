@@ -22,7 +22,7 @@ export default async (project: PoetryProject) => {
         console.error(stderr)
         throw Error(`Failed to export requirements file: ${stderr}`)
     }
-
+    await project.build()
     const hasEnvPackages = await pathExists(`${project.path}/.venv/lib/python3.8/site-packages/`)
 
     if(hasEnvPackages) {

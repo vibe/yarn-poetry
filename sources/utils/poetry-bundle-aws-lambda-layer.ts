@@ -3,6 +3,7 @@ import { npath } from '@yarnpkg/fslib'
 import { exec as ogExec, spawn } from 'child_process'
 import { readFile, writeFile, copy, pathExists, ensureDir } from 'fs-extra'
 import { promisify } from 'util'
+import poetryBundle from './poetry-bundle'
 import PoetryProject from './poetry-project'
 
 const exec = promisify(ogExec)
@@ -23,6 +24,8 @@ export default async (project: PoetryProject) => {
         throw Error(`Failed to export requirements file: ${stderr}`)
     }
 
+    
+    await project.build()
     const hasEnvPackages = await pathExists(`${project.path}/.venv/lib/python3.8/site-packages/`)
 
     if(hasEnvPackages) {

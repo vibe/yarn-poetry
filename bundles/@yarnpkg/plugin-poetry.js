@@ -222,6 +222,22 @@ class PoetryProject {
     })();
   }
 
+  async build() {
+    let {
+      stderr,
+      stdout
+    } = await exec('poetry build', {
+      cwd: this.path
+    });
+
+    if (stderr) {
+      console.error(stderr);
+      throw Error(`Failed to run poetry build: ${stderr}`);
+    }
+
+    console.log(stdout);
+  }
+
   async bundle(targets = []) {
     targets.forEach(target => {
       const targetBundler = this.bundlers[target];
@@ -7533,6 +7549,7 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBP
     throw Error(`Failed to export requirements file: ${stderr}`);
   }
 
+  await project.build();
   const hasEnvPackages = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.pathExists)(`${project.path}/.venv/lib/python3.8/site-packages/`);
 
   if (hasEnvPackages) {
@@ -7620,6 +7637,7 @@ const exec = (0,util__WEBPACK_IMPORTED_MODULE_4__.promisify)(child_process__WEBP
     throw Error(`Failed to export requirements file: ${stderr}`);
   }
 
+  await project.build();
   const hasEnvPackages = await (0,fs_extra__WEBPACK_IMPORTED_MODULE_3__.pathExists)(`${project.path}/.venv/lib/python3.8/site-packages/`);
 
   if (hasEnvPackages) {
